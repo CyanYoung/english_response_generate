@@ -74,8 +74,6 @@ def vectorize(paths, mode):
     sent1s, text2s = list(text1s), list(text2s)
     flag_text2s = add_flag(text2s)
     sent2s, labels = shift(flag_text2s)
-    print(sent2s)
-    print(labels)
     if mode == 'train':
         tokenize(sent1s + flag_text2s, path_word2ind)
         embed(path_word2ind, path_word_vec, path_embed)
