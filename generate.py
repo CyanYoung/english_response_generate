@@ -61,8 +61,6 @@ with open(path_word2ind, 'rb') as f:
     word2ind = pk.load(f)
 word_inds = word2ind.word_index
 
-print(word_inds[bos])
-
 ind_words = ind2word(word_inds)
 
 funcs = {'s2s_encode': s2s_encode,
@@ -102,11 +100,8 @@ def predict(text, name):
     while next_word != eos and len(sent2) < max_len:
         sent2 = sent2 + next_word
         seq2 = word2ind.texts_to_sequences([sent2])[0]
-        print(seq2)
         pad_seq2 = pad_sequences([seq2], maxlen=seq_len, padding='post', truncating='post')
-        print(pad_seq2)
         probs = decode.predict([pad_seq2, state])[0][-1]
-        print(probs)
         next_word = sample(probs, ind_words, cand=5)
     return sent2[1:]
 

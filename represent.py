@@ -21,7 +21,7 @@ path_embed = 'feat/embed.pkl'
 def add_flag(texts):
     flag_texts = list()
     for text in texts:
-        flag_texts.append(bos + text + eos)
+        flag_texts.append(' '.join([bos, text, eos]))
     return flag_texts
 
 
@@ -63,7 +63,6 @@ def align(sents, path_sent, mode):
         pad_seqs = pad_sequences(seqs, maxlen=seq_len, padding='post', truncating='post')
     else:
         pad_seqs = pad_sequences(seqs, maxlen=seq_len, padding='pre', truncating='pre')
-    print(pad_seqs)
     with open(path_sent, 'wb') as f:
         pk.dump(pad_seqs, f)
 
