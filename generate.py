@@ -21,10 +21,13 @@ def define_model(name, embed_mat, seq_len, mode):
     vocab_num, embed_len = embed_mat.shape
     embed = Embedding(input_dim=vocab_num, output_dim=embed_len, input_length=seq_len, name='embed')
     input = Input(shape=(seq_len,))
+    if name == 'att':
+        state = Input(shape=(seq_len, embed_len))
+    else:
+        state = Input(shape=(embed_len,))
     embed_input = embed(input)
     func = map_item('_'.join([name, mode]), funcs)
     if mode == 'decode':
-        state = Input(shape=(embed_len,))
         output = func(embed_input, state, vocab_num)
         return Model([input, state], output)
     else:
@@ -72,9 +75,9 @@ paths = {'s2s': 'model/s2s.h5',
          'att': 'model/att.h5'}
 
 models = {'s2s_encode': load_model('s2s', embed_mat, seq_len, 'encode'),
-          's2s_decode': load_model('s2s', embed_mat, seq_len, 'decode')}
-          # 'att_encode': load_model('att', embed_mat, seq_len, 'encode'),
-          # 'att_decode': load_model('att', embed_mat, seq_len, 'decode')}
+          's2s_decode': load_model('s2s', embed_mat, seq_len, 'decode'),
+          'att_encode': load_model('att', embed_mat, seq_len, 'encode'),
+          'att_decode': load_model('att', embed_mat, seq_len, 'decode')}
 
 
 def sample(probs, ind_words, cand):
@@ -96,14 +99,17 @@ def predict(text, name):
     encode = map_item(name + '_encode', models)
     state = encode.predict(pad_seq1)
     decode = map_item(name + '_decode', models)
-    sent2, next_word = bos, ''
-    while next_word != eos and len(sent2) < max_len:
-        sent2 = sent2 + next_word
+    sent2 = bos
+    next_word, count = '', 0
+    while next_word != eos and count < max_len:
+        sent2 = ' '.join([sent2, next_word])
+        count = count + 1
         seq2 = word2ind.texts_to_sequences([sent2])[0]
         pad_seq2 = pad_sequences([seq2], maxlen=seq_len, padding='post', truncating='post')
-        probs = decode.predict([pad_seq2, state])[0][-1]
+        end = min(count - 1, seq_len - 1)
+        probs = decode.predict([pad_seq2, state])[0][end]
         next_word = sample(probs, ind_words, cand=5)
-    return sent2[1:]
+    return sent2[2:]
 
 
 if __name__ == '__main__':
@@ -111,4 +117,4 @@ if __name__ == '__main__':
         text = input('text: ')
         clean_text = clean(text)
         print('s2s: %s' % predict(clean_text, 's2s'))
-        # print('att: %s' % predict(clean_text, 'att'))
+        print('att: %s' % predict(clean_text, 'att'))
