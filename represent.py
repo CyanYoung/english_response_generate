@@ -18,6 +18,17 @@ path_word2ind = 'model/word2ind.pkl'
 path_embed = 'feat/embed.pkl'
 
 
+def load(path):
+    with open(path, 'rb') as f:
+        item = pk.load(f)
+    return item
+
+
+def save(item, path):
+    with open(path, 'wb') as f:
+        pk.dump(item, f)
+
+
 def add_flag(texts):
     flag_texts = list()
     for text in texts:
@@ -31,19 +42,16 @@ def shift(flag_texts):
     return sents, labels
 
 
-def tokenize(texts, path):
+def tokenize(texts, path_word2ind):
     model = Tokenizer(num_words=max_vocab, filters='', lower=True, oov_token='oov')
     model.fit_on_texts(texts)
-    with open(path, 'wb') as f:
-        pk.dump(model, f)
+    save(model, path_word2ind)
 
 
 def embed(path_word2ind, path_word_vec, path_embed):
-    with open(path_word2ind, 'rb') as f:
-        model = pk.load(f)
+    model = load(path_word2ind)
     word_inds = model.word_index
-    with open(path_word_vec, 'rb') as f:
-        word_vecs = pk.load(f)
+    word_vecs = load(path_word_vec)
     vocab = word_vecs.keys()
     vocab_num = min(max_vocab + 1, len(word_inds) + 1)
     embed_mat = np.zeros((vocab_num, embed_len))
@@ -51,20 +59,17 @@ def embed(path_word2ind, path_word_vec, path_embed):
         if word in vocab:
             if ind < max_vocab:
                 embed_mat[ind] = word_vecs[word]
-    with open(path_embed, 'wb') as f:
-        pk.dump(embed_mat, f)
+    save(embed_mat, path_embed)
 
 
 def align(sents, path_sent, phase):
-    with open(path_word2ind, 'rb') as f:
-        model = pk.load(f)
+    model = load(path_word2ind)
     seqs = model.texts_to_sequences(sents)
     if phase == 'decode':
         pad_seqs = pad_sequences(seqs, maxlen=seq_len, padding='post', truncating='post')
     else:
         pad_seqs = pad_sequences(seqs, maxlen=seq_len, padding='pre', truncating='pre')
-    with open(path_sent, 'wb') as f:
-        pk.dump(pad_seqs, f)
+    save(pad_seqs, path_sent)
 
 
 def vectorize(paths, mode):
@@ -81,9 +86,8 @@ def vectorize(paths, mode):
         align(sent2s, paths['sent2'], 'decode')
         align(labels, paths['label'], 'decode')
     else:
-        align(sent1s, paths['sent1'], 'encode')
-        with open(paths['label'], 'wb') as f:
-            pk.dump(labels, f)
+        save(sent1s, paths['sent1'])
+        save(labels, paths['label'])
 
 
 if __name__ == '__main__':
