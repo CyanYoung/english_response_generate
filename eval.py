@@ -1,22 +1,25 @@
-from nltk.translate.bleu_score import sentence_bleu
+import pickle as pk
 
-from build import load_feat
+from nltk.translate.bleu_score import corpus_bleu
 
 from generate import predict
 
 
-path_feats = dict()
-path_feats['sent1'] = 'feat/sent1_train.pkl'
-path_feats['sent2'] = 'feat/sent2_train.pkl'
-path_feats['label'] = 'feat/label_train.pkl'
-sent1s, sent2s, labels = load_feat(path_feats)
+path_sent1 = 'feat/sent1_test.pkl'
+path_label = 'feat/label_test.pkl'
+with open(path_sent1, 'rb') as f:
+    sent1s = pk.load(f)
+with open(path_label, 'rb') as f:
+    labels = pk.load(f)
 
 
 def test(name, sent1s, labels):
+    labels = [[label.split()] for label in labels]
     preds = list()
-    for sent1 in sent1s:
-        preds.append(predict(sent1, name, 'search'))
-    print('\n%s %s %.2f\n' % (name, 'bleu:', sentence_bleu(labels, preds)))
+    for i, sent1 in enumerate(sent1s):
+        pred = predict(sent1, name, 'sample')
+        preds.append(pred.split())
+    print('\n%s %s %.2f\n' % (name, 'bleu:', corpus_bleu(labels[:10], preds)))
 
 
 if __name__ == '__main__':
