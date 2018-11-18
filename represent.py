@@ -55,11 +55,11 @@ def embed(path_word2ind, path_word_vec, path_embed):
         pk.dump(embed_mat, f)
 
 
-def align(sents, path_sent, mode):
+def align(sents, path_sent, phase):
     with open(path_word2ind, 'rb') as f:
         model = pk.load(f)
     seqs = model.texts_to_sequences(sents)
-    if mode == 'decode':
+    if phase == 'decode':
         pad_seqs = pad_sequences(seqs, maxlen=seq_len, padding='post', truncating='post')
     else:
         pad_seqs = pad_sequences(seqs, maxlen=seq_len, padding='pre', truncating='pre')
@@ -77,9 +77,13 @@ def vectorize(paths, mode):
     if mode == 'train':
         tokenize(sent1s + flag_text2s, path_word2ind)
         embed(path_word2ind, path_word_vec, path_embed)
-    align(sent1s, paths['sent1'], 'encode')
-    align(sent2s, paths['sent2'], 'decode')
-    align(labels, paths['label'], 'decode')
+        align(sent1s, paths['sent1'], 'encode')
+        align(sent2s, paths['sent2'], 'decode')
+        align(labels, paths['label'], 'decode')
+    else:
+        align(sent1s, paths['sent1'], 'encode')
+        with open(paths['label'], 'wb') as f:
+            pk.dump(labels, f)
 
 
 if __name__ == '__main__':
@@ -91,6 +95,5 @@ if __name__ == '__main__':
     vectorize(paths, 'train')
     paths['data'] = 'data/test.json'
     paths['sent1'] = 'feat/sent1_test.pkl'
-    paths['sent2'] = 'feat/sent2_test.pkl'
     paths['label'] = 'feat/label_test.pkl'
     vectorize(paths, 'test')
