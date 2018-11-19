@@ -48,11 +48,13 @@ def ind2word(word_inds):
     return ind_words
 
 
-def check(probs, cand):
+def check(probs, cand, keep_eos):
     max_probs, max_inds = list(), list()
     sort_probs = -np.sort(-probs)
     sort_inds = np.argsort(-probs)
     for prob, ind in zip(list(sort_probs), list(sort_inds)):
+        if not keep_eos and ind == eos_ind:
+            continue
         if ind not in skip_inds:
             max_probs.append(prob)
             max_inds.append(ind)
@@ -71,7 +73,7 @@ def sample(decode, state, cand):
         pad_seq2 = pad_sequences([seq2], maxlen=seq_len, padding='post', truncating='post')
         step = min(count - 1, seq_len - 1)
         probs = decode.predict([pad_seq2, state])[0][step]
-        max_probs, max_inds = check(probs, cand)
+        max_probs, max_inds = check(probs, cand, keep_eos=True)
         if max_inds[0] == word_inds[eos]:
             next_word = eos
         else:
@@ -84,7 +86,7 @@ def search(decode, state, cand):
     bos_ind = [word_inds[bos]]
     pad_bos = pad_sequences([bos_ind], maxlen=seq_len, padding='post', truncating='post')
     logs = np.log(decode.predict([pad_bos, state])[0][0])
-    max_logs, max_inds = check(logs, cand)
+    max_logs, max_inds = check(logs, cand, keep_eos=False)
     sent2s, log_sums = [bos] * cand, max_logs
     fin_sent2s, fin_logs = list(), list()
     next_words, count = [ind_words[ind] for ind in max_inds], 1
@@ -92,30 +94,29 @@ def search(decode, state, cand):
         log_mat, ind_mat = list(), list()
         count = count + 1
         for i in range(cand):
-            if next_words[i] != eos:
-                sent2s[i] = ' '.join([sent2s[i], next_words[i]])
-                seq2 = word2ind.texts_to_sequences([sent2s[i]])[0]
-                pad_seq2 = pad_sequences([seq2], maxlen=seq_len, padding='post', truncating='post')
-                step = min(count - 1, seq_len - 1)
-                logs = np.log(decode.predict([pad_seq2, state])[0][step])
-                max_logs, max_inds = check(logs, cand)
-                max_logs = max_logs + log_sums[i]
-                log_mat.append(max_logs)
-                ind_mat.append(max_inds)
+            sent2s[i] = ' '.join([sent2s[i], next_words[i]])
+            seq2 = word2ind.texts_to_sequences([sent2s[i]])[0]
+            pad_seq2 = pad_sequences([seq2], maxlen=seq_len, padding='post', truncating='post')
+            step = min(count - 1, seq_len - 1)
+            logs = np.log(decode.predict([pad_seq2, state])[0][step])
+            max_logs, max_inds = check(logs, cand, keep_eos=True)
+            max_logs = max_logs + log_sums[i]
+            log_mat.append(max_logs)
+            ind_mat.append(max_inds)
         max_logs = -np.sort(-np.array(log_mat), axis=None)[:cand]
         next_sent2s, next_words, log_sums = list(), list(), list()
         for log in max_logs:
             args = np.where(log_mat == log)
             sent_arg, ind_arg = int(args[0]), int(args[1])
             next_word = ind_words[ind_mat[sent_arg][ind_arg]]
-            if next_word == eos:
-                cand = cand - 1
-                fin_sent2s.append(sent2s[sent_arg])
-                fin_logs.append(log_mat[sent_arg][ind_arg] / count)
-            else:
+            if next_word != eos:
                 next_sent2s.append(sent2s[sent_arg])
                 next_words.append(ind_words[ind_mat[sent_arg][ind_arg]])
                 log_sums.append(log_mat[sent_arg][ind_arg])
+            else:
+                cand = cand - 1
+                fin_sent2s.append(sent2s[sent_arg])
+                fin_logs.append(log_mat[sent_arg][ind_arg] / (count - 1))
         sent2s = next_sent2s
     max_arg = np.argmax(np.array(fin_logs))
     return fin_sent2s[max_arg][2:]
@@ -136,6 +137,7 @@ with open(path_word2ind, 'rb') as f:
     word2ind = pk.load(f)
 word_inds = word2ind.word_index
 
+eos_ind = word_inds[eos]
 skip_inds = [0, word_inds['oov']]
 
 ind_words = ind2word(word_inds)
