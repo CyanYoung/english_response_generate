@@ -107,16 +107,16 @@ def search(decode, state, cand):
         next_sent2s, next_words, log_sums = list(), list(), list()
         for log in max_logs:
             args = np.where(log_mat == log)
-            sent_arg, ind_arg = int(args[0]), int(args[1])
+            sent_arg, ind_arg = int(args[0][0]), int(args[1][0])
             next_word = ind_words[ind_mat[sent_arg][ind_arg]]
             if next_word != eos:
+                next_words.append(next_word)
                 next_sent2s.append(sent2s[sent_arg])
-                next_words.append(ind_words[ind_mat[sent_arg][ind_arg]])
-                log_sums.append(log_mat[sent_arg][ind_arg])
+                log_sums.append(log)
             else:
                 cand = cand - 1
                 fin_sent2s.append(sent2s[sent_arg])
-                fin_logs.append(log_mat[sent_arg][ind_arg] / (count - 1))
+                fin_logs.append(log / count)
         sent2s = next_sent2s
     max_arg = np.argmax(np.array(fin_logs))
     return fin_sent2s[max_arg][2:]
