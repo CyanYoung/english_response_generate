@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 
 path_vocab_freq = 'stat/vocab_freq.json'
 path_len_freq = 'stat/len_freq.json'
-path_slot_freq = 'stat/slot_freq.json'
 
 plt.rcParams['axes.unicode_minus'] = False
 plt.rcParams['font.family'] = ['Arial Unicode MS']
