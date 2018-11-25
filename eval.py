@@ -19,7 +19,7 @@ def test(name, sent1s, labels):
     for i, sent1 in enumerate(sent1s):
         pred = predict(sent1, name, 'search')
         preds.append(pred.split())
-    print('\n%s %s %.2f\n' % (name, 'bleu:', corpus_bleu(labels, preds)))
+    print('\n%s bleu: %.2f\n' % (name, corpus_bleu(labels, preds)))
 
 
 if __name__ == '__main__':
