@@ -2,8 +2,6 @@
 
 #### 1.preprocess
 
-clean() 进行 word_tokenize() 分词，pos_tag() 词性标注，lemmatize() 词形还原
-
 prepare() 将数据保存为 (text1, text2) 格式，打乱后划分训练、测试集
 
 #### 2.represent

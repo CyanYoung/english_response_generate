@@ -10,8 +10,6 @@ from keras.layers import Input, Embedding
 
 from keras.preprocessing.sequence import pad_sequences
 
-from preprocess import clean
-
 from nn_arch import s2s_encode, s2s_decode, att_encode, att_decode
 
 from util import load_word_re, map_item
@@ -173,6 +171,5 @@ def predict(text, name, mode):
 if __name__ == '__main__':
     while True:
         text = input('text: ')
-        clean_text = clean(text)
-        print('s2s: %s' % predict(clean_text, 's2s', 'search'))
-        print('att: %s' % predict(clean_text, 'att', 'search'))
+        print('s2s: %s' % predict(text, 's2s', 'search'))
+        print('att: %s' % predict(text, 'att', 'search'))
