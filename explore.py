@@ -39,7 +39,7 @@ def statistic(path_train):
     with open(path_train, 'r') as f:
         pairs = json.load(f)
     text1s, text2s = zip(*pairs)
-    texts = list(set(text1s + text2s))
+    texts = list(text1s) + list(text2s)
     all_words = ' '.join(texts).split()
     text_lens = [len(text.split()) for text in texts]
     count(path_vocab_freq, all_words, 'vocab')
