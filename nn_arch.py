@@ -1,4 +1,4 @@
-from keras.layers import Dense, GRU, Dropout, Concatenate
+from keras.layers import GRU, Dense, Dropout, Concatenate
 
 import keras.backend as K
 from keras.engine.topology import Layer
@@ -42,17 +42,17 @@ class Attend(Layer):
 
     def call(self, x):
         assert isinstance(x, list)
-        h1, h2 = x
+        s1, h2 = x
         c = list()
         for i in range(self.seq_len):
             h2_i = K.repeat(h2[:, i, :], self.seq_len)
-            x = K.concatenate([h1, h2_i])
+            x = K.concatenate([s1, h2_i])
             p = K.tanh(K.dot(x, self.w) + self.b1)
             p = K.softmax(K.dot(p, self.v) + self.b2)
             p = K.squeeze(p, axis=-1)
             p = K.repeat(p, self.embed_len)
             p = K.permute_dimensions(p, (0, 2, 1))
-            c_i = K.sum(p * h1, axis=1, keepdims=True)
+            c_i = K.sum(p * s1, axis=1, keepdims=True)
             c.append(c_i)
         return K.concatenate(c, axis=1)
 
@@ -70,11 +70,12 @@ def att_decode(x2, h1, vocab_num):
     ra = GRU(200, activation='tanh', return_sequences=True, name='decode')
     attend = Attend(200, name='attend')
     da = Dense(vocab_num, activation='softmax', name='classify')
-    h2 = ra(x2, initial_state=h1[:, -1, :])
-    c = attend([h1, h2])
-    s = Concatenate()([h2, c])
-    s = Dropout(0.2)(s)
-    return da(s)
+    s1, h1_n = h1[:, :-1, :], h1[:, -1, :]
+    h2 = ra(x2, initial_state=h1_n)
+    c = attend([s1, h2])
+    s2 = Concatenate()([h2, c])
+    s2 = Dropout(0.2)(s2)
+    return da(s2)
 
 
 def att(embed_input1, embed_input2, vocab_num):

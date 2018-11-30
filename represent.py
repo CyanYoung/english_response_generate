@@ -11,8 +11,6 @@ embed_len = 200
 max_vocab = 10000
 seq_len = 100
 
-bos, eos = '*', '#'
-
 path_word_vec = 'feat/word_vec.pkl'
 path_word2ind = 'model/word2ind.pkl'
 path_embed = 'feat/embed.pkl'
@@ -29,7 +27,7 @@ def save(item, path):
         pk.dump(item, f)
 
 
-def add_flag(texts):
+def add_flag(texts, bos, eos):
     flag_texts = list()
     for text in texts:
         flag_texts.append(' '.join([bos, text, eos]))
@@ -77,18 +75,18 @@ def vectorize(paths, mode):
     with open(paths['data'], 'r') as f:
         pairs = json.load(f)
     text1s, text2s = zip(*pairs)
-    text1s, text2s = list(text1s), list(text2s)
+    sent1s = add_flag(list(text1s), bos='', eos='#')
     if mode == 'train':
-        flag_text2s = add_flag(text2s)
+        flag_text2s = add_flag(list(text2s), bos='*', eos='#')
         sent2s, labels = shift(flag_text2s)
-        tokenize(text1s + flag_text2s, path_word2ind)
+        tokenize(sent1s + sent2s, path_word2ind)
         embed(path_word2ind, path_word_vec, path_embed)
-        align(text1s, paths['sent1'], 'encode')
+        align(sent1s, paths['sent1'], 'encode')
         align(sent2s, paths['sent2'], 'decode')
         align(labels, paths['label'], 'decode')
     else:
-        save(text1s, paths['sent1'])
-        save(text2s, paths['label'])
+        save(sent1s, paths['sent1'])
+        save(list(text2s), paths['label'])
 
 
 if __name__ == '__main__':
