@@ -42,10 +42,11 @@ class Attend(Layer):
 
     def call(self, x):
         assert isinstance(x, list)
-        s1, h2 = x
+        h1, h2 = x
+        s1 = h1[:, :-1, :]
         c = list()
         for i in range(self.seq_len):
-            h2_i = K.repeat(h2[:, i, :], self.seq_len)
+            h2_i = K.repeat(h2[:, i, :], self.seq_len - 1)
             x = K.concatenate([s1, h2_i])
             p = K.tanh(K.dot(x, self.w) + self.b1)
             p = K.softmax(K.dot(p, self.v) + self.b2)
@@ -70,9 +71,8 @@ def att_decode(x2, h1, vocab_num):
     ra = GRU(200, activation='tanh', return_sequences=True, name='decode')
     attend = Attend(200, name='attend')
     da = Dense(vocab_num, activation='softmax', name='classify')
-    s1, h1_n = h1[:, :-1, :], h1[:, -1, :]
-    h2 = ra(x2, initial_state=h1_n)
-    c = attend([s1, h2])
+    h2 = ra(x2, initial_state=h1[:, -1, :])
+    c = attend([h1, h2])
     s2 = Concatenate()([h2, c])
     s2 = Dropout(0.2)(s2)
     return da(s2)
