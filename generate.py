@@ -77,7 +77,7 @@ def sample(decode, state, cand):
         else:
             max_probs = max_probs / np.sum(max_probs)
             next_word = ind_words[choice(max_inds, p=max_probs)]
-    return sent2[2:]
+    return sent2[3:]
 
 
 def search(decode, state, cand):
@@ -174,3 +174,5 @@ if __name__ == '__main__':
         text = input('text: ')
         print('s2s: %s' % predict(text, 's2s', 'search'))
         print('att: %s' % predict(text, 'att', 'search'))
+        print('s2s: %s' % predict(text, 's2s', 'sample'))
+        print('att: %s' % predict(text, 'att', 'sample'))
