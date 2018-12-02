@@ -80,8 +80,8 @@ def vectorize(paths, mode):
     if mode == 'train':
         flag_text2s = add_flag(text2s, bos='*', eos='#')
         tokenize(sent1s + flag_text2s, path_word2ind)
-        sent2s, labels = shift(flag_text2s)
         embed(path_word2ind, path_word_vec, path_embed)
+        sent2s, labels = shift(flag_text2s)
         align(sent1s, paths['sent1'], 'encode')
         align(sent2s, paths['sent2'], 'decode')
         align(labels, paths['label'], 'decode')
