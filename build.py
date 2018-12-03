@@ -7,7 +7,7 @@ from keras.layers import Input, Embedding
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 
-from nn_arch import s2s, att
+from nn_arch import rnn_s2s, rnn_att
 
 from util import map_item
 
@@ -18,11 +18,11 @@ path_embed = 'feat/embed.pkl'
 with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
 
-funcs = {'s2s': s2s,
-         'att': att}
+funcs = {'s2s': rnn_s2s,
+         'att': rnn_att}
 
-paths = {'s2s': 'model/s2s.h5',
-         'att': 'model/att.h5'}
+paths = {'s2s': 'model/rnn_s2s.h5',
+         'att': 'model/rnn_att.h5'}
 
 
 def load_feat(path_feats):
