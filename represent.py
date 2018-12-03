@@ -63,11 +63,8 @@ def embed(path_word2ind, path_word_vec, path_embed):
 def align(sents, path_sent, phase):
     model = load(path_word2ind)
     seqs = model.texts_to_sequences(sents)
-    if phase == 'decode':
-        pad, trunc = ['post'] * 2
-    else:
-        pad, trunc = ['pre'] * 2
-    pad_seqs = pad_sequences(seqs, maxlen=seq_len, padding=pad, truncating=trunc)
+    loc = 'post' if phase == 'decode' else 'pre'
+    pad_seqs = pad_sequences(seqs, maxlen=seq_len, padding=loc, truncating=loc)
     save(pad_seqs, path_sent)
 
 
