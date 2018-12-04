@@ -6,9 +6,9 @@ prepare() 将数据保存为 (text1, text2) 格式，打乱后划分训练、测
 
 #### 2.represent
 
-add_flag() 为 text2 添加控制符、shift() 分别删去 bos、eos 得到 sent2、label
+add_flag() 添加控制符，shift() 对 text2 分别删去 bos、eos 得到 sent2、label
 
-tokenize() 通过 text1 和 flag_text2 建立词索引、构造 embed_mat
+tokenize() 通过 sent1 和 flag_text2 建立词索引、构造 embed_mat
 
 align() 对训练数据 sent1 的尾部，sent2、label 的头部，填充或截取为定长序列
 
