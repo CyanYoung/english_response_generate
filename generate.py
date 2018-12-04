@@ -98,9 +98,9 @@ def search(decode, state, cand):
             seq2 = word2ind.texts_to_sequences([sent2s[i]])[0]
             pad_seq2 = pad_sequences([seq2], maxlen=seq_len, padding='post', truncating='post')
             step = min(count - 1, seq_len - 1)
-            logs = np.log(decode.predict([pad_seq2, state])[0][step])
-            max_logs, max_inds = check(logs, cand, keep_eos=True)
-            max_logs = max_logs + log_sums[i]
+            probs = decode.predict([pad_seq2, state])[0][step]
+            max_probs, max_inds = check(probs, cand, keep_eos=True)
+            max_logs = np.log(max_probs) + log_sums[i]
             log_mat.append(max_logs)
             ind_mat.append(max_inds)
         max_logs = -np.sort(-np.array(log_mat), axis=None)[:cand]
