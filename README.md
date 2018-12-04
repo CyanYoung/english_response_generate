@@ -10,7 +10,7 @@ add_flag() 添加控制符，shift() 对 text2 分别删去 bos、eos 得到 sen
 
 tokenize() 通过 sent1 和 flag_text2 建立词索引、构造 embed_mat
 
-align() 对训练数据 sent1 的尾部，sent2、label 的头部，填充或截取为定长序列
+align() 对训练数据 sent1 头部，sent2、label 尾部，填充或截取为定长序列
 
 #### 3.build
 
@@ -20,7 +20,7 @@ Attend() 通过解码器各状态 h2_i 与 h1 返回语境向量 c_i，h2_i 与 
 
 #### 4.generate
 
-predict() 先对输入进行编码、再通过采样或搜索进行生成，check() 忽略无效词
+predict() 先对输入进行编码、再通过采样或搜索进行解码，check() 忽略无效词
 
 #### 5.eval
 
