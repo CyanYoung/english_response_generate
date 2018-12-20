@@ -11,6 +11,8 @@ embed_len = 200
 max_vocab = 10000
 seq_len = 100
 
+bos, eos = '*', '#'
+
 path_word_vec = 'feat/word_vec.pkl'
 path_word2ind = 'model/word2ind.pkl'
 path_embed = 'feat/embed.pkl'
@@ -73,9 +75,9 @@ def vectorize(paths, mode):
         pairs = json.load(f)
     text1s, text2s = zip(*pairs)
     text1s, text2s = list(text1s), list(text2s)
-    sent1s = add_flag(text1s, bos='', eos='#')
+    sent1s = add_flag(text1s, bos='', eos=eos)
     if mode == 'train':
-        flag_text2s = add_flag(text2s, bos='*', eos='#')
+        flag_text2s = add_flag(text2s, bos=bos, eos=eos)
         tokenize(sent1s + flag_text2s, path_word2ind)
         embed(path_word2ind, path_word_vec, path_embed)
         sent2s, labels = shift(flag_text2s)
