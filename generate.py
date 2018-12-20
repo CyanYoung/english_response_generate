@@ -85,9 +85,9 @@ def sample(decode, state, cand):
 def search(decode, state, cand):
     bos_ind = [word_inds[bos]]
     pad_bos = pad_sequences([bos_ind], maxlen=seq_len, padding='post', truncating='post')
-    logs = np.log(decode.predict([pad_bos, state])[0][0])
-    max_logs, max_inds = check(logs, cand, keep_eos=False)
-    sent2s, log_sums = [bos] * cand, max_logs
+    probs = decode.predict([pad_bos, state])[0][0]
+    max_probs, max_inds = check(probs, cand, keep_eos=False)
+    sent2s, log_sums = [bos] * cand, np.log(max_probs)
     fin_sent2s, fin_logs = list(), list()
     next_words, count = [ind_words[ind] for ind in max_inds], 1
     while cand > 0:
