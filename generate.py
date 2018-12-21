@@ -161,6 +161,7 @@ models = {'s2s_encode': load_model('s2s', embed_mat, seq_len, 'encode'),
 
 
 def predict(text, name, mode):
+    text = clean(text)
     sent1 = ' '.join([text, eos])
     sent1 = re.sub(stop_word_re, '', sent1)
     seq1 = word2ind.texts_to_sequences([sent1])[0]
@@ -175,7 +176,6 @@ def predict(text, name, mode):
 if __name__ == '__main__':
     while True:
         text = input('text: ')
-        text = clean(text)
         print('s2s: %s' % predict(text, 's2s', 'search'))
         print('att: %s' % predict(text, 'att', 'search'))
         print('s2s: %s' % predict(text, 's2s', 'sample'))
