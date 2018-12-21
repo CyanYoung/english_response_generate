@@ -161,8 +161,8 @@ models = {'s2s_encode': load_model('s2s', embed_mat, seq_len, 'encode'),
 
 
 def predict(text, name, mode):
-    text = clean(text)
-    sent1 = ' '.join([text, eos])
+    text1 = clean(text)
+    sent1 = ' '.join([text1, eos])
     sent1 = re.sub(stop_word_re, '', sent1)
     seq1 = word2ind.texts_to_sequences([sent1])[0]
     pad_seq1 = pad_sequences([seq1], maxlen=seq_len, padding='pre', truncating='pre')

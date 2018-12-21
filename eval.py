@@ -18,7 +18,7 @@ def test(name, sent1s, labels):
         preds.append(pred)
     print('\n%s:\n' % name)
     for sent1, pred, label in zip(sent1s, preds, labels):
-        print('{} | {} | {}'.format(sent1[1:-2], pred, label))
+        print('{} | {} | {}'.format(sent1, pred, label))
 
 
 if __name__ == '__main__':
