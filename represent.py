@@ -85,7 +85,7 @@ def vectorize(paths, mode):
         align(sent2s, paths['sent2'], 'decode')
         align(labels, paths['label'], 'decode')
     else:
-        save(sent1s, paths['sent1'])
+        save(text1s, paths['sent1'])
         save(text2s, paths['label'])
 
 
