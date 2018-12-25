@@ -125,7 +125,7 @@ def search(decode, state, cand):
 seq_len = 100
 max_len = 50
 
-bos, eos = '*', '#'
+bos, eos = '<', '>'
 
 path_stop_word = 'dict/stop_word.txt'
 stop_word_re = load_word_re(path_stop_word)
