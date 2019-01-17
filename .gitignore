@@ -9,4 +9,6 @@
 __pycache__
 
 # exceed
+sent1_train.pkl
+sent2_train.pkl
 word_vec.pkl
