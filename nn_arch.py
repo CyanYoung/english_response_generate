@@ -4,6 +4,11 @@ import keras.backend as K
 from keras.engine.topology import Layer
 
 
+def rnn_s2s(embed_input1, embed_input2, vocab_num):
+    h1_n = s2s_encode(embed_input1)
+    return s2s_decode(embed_input2, h1_n, vocab_num)
+
+
 def s2s_encode(x1):
     ra = GRU(200, activation='tanh', name='encode')
     return ra(x1)
@@ -15,11 +20,6 @@ def s2s_decode(x2, h1_n, vocab_num):
     h2 = ra(x2, initial_state=h1_n)
     h2 = Dropout(0.2)(h2)
     return da(h2)
-
-
-def rnn_s2s(embed_input1, embed_input2, vocab_num):
-    h1_n = s2s_encode(embed_input1)
-    return s2s_decode(embed_input2, h1_n, vocab_num)
 
 
 class Attend(Layer):
@@ -62,6 +62,11 @@ class Attend(Layer):
         return input_shape[0]
 
 
+def rnn_att(embed_input1, embed_input2, vocab_num):
+    h1 = att_encode(embed_input1)
+    return att_decode(embed_input2, h1, vocab_num)
+
+
 def att_encode(x1):
     ra = GRU(200, activation='tanh', return_sequences=True, name='encode')
     return ra(x1)
@@ -76,8 +81,3 @@ def att_decode(x2, h1, vocab_num):
     s2 = Concatenate()([h2, c])
     s2 = Dropout(0.2)(s2)
     return da(s2)
-
-
-def rnn_att(embed_input1, embed_input2, vocab_num):
-    h1 = att_encode(embed_input1)
-    return att_decode(embed_input2, h1, vocab_num)
